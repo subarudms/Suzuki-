@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Suzuki 貸款試算</title>
-    <link rel="apple-touch-icon" href="logo.png.png">
+    
+    <link rel="apple-touch-icon" href="logo.jpeg">
+    
     <style>
         :root { --suzuki-red: #ED1C24; --bg: #222; }
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -23,7 +25,7 @@
         .btn-clear { background: #eee; color: #666; }
         .btn:active { transform: scale(0.95); }
         .result-area { margin-top: 25px; border-top: 2px solid #f9f9f9; padding-top: 20px; display: none; }
-        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; }
+        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; font-size: 16px; }
         .res-val { font-weight: bold; font-size: 20px; }
     </style>
 </head>
@@ -31,7 +33,7 @@
 
 <div class="container">
     <div class="header">
-        <img src="logo.png.png" alt="Suzuki Logo" class="header-logo">
+        <img src="logo.jpeg" alt="Suzuki Logo" class="header-logo">
         <div class="header-title">車貸補貼息試算助手</div>
     </div>
     <div class="content">
@@ -70,6 +72,7 @@
 </div>
 
 <script>
+// 計算邏輯保持不變...
 function doCalc() {
     const PV = parseFloat(document.getElementById('amt').value) || 0;
     const clientRate = parseFloat(document.getElementById('c_rate').value) / 100 / 12 || 0;
