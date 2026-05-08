@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汽車貸款試算工具</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --bg-color: #f4f7f6;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .app-card {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        h2 { text-align: center; color: var(--primary-color); margin-bottom: 25px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus { border-color: var(--accent-color); outline: none; }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.98); opacity: 0.9; }
+        .result-area {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 15px;
+            display: none;
+        }
+        .result-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .result-value { font-weight: bold; color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <h2>車貸試算助手</h2>
+    
+    <div class="input-group">
+        <label>貸款金額 (萬元)</label>
+        <input type="number" id="amount" placeholder="例如: 50" value="50">
+    </div>
+    
+    <div class="input-group">
+        <label>年利率 (%)</label>
+        <input type="number" id="rate" step="0.01" placeholder="例如: 6.5" value="6.5">
+    </div>
+    
+    <div class="input-group">
+        <label>還款期數 (月)</label>
+        <input type="number" id="months" placeholder="例如: 60" value="60">
+    </div>
+
+    <button onclick="calculate()">開始試算</button>
+
+    <div id="result" class="result-area">
+        <div class="result-item">
+            <span>每月月付額：</span>
+            <span class="result-value" id="monthlyPay">0</span>
+        </div>
+        <div class="result-item">
+            <span>總利息支出：</span>
+            <span class="result-value" id="totalInterest">0</span>
+        </div>
+        <div class="result-item">
+            <span>總還款金額：</span>
+            <span class="result-value" id="totalPay">0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        // 取得輸入數值
+        const amount = document.getElementById('amount').value * 10000;
+        const annualRate = document.getElementById('rate').value / 100;
+        const months = document.getElementById('months').value;
+
+        if (!amount || !annualRate || !months) {
+            alert("請填寫完整資訊");
+            return;
+        }
+
+        // 本息平均攤還公式
+        const monthlyRate = annualRate / 12;
+        const temp = Math.pow(1 + monthlyRate, months);
+        const monthlyPay = Math.round((amount * temp * monthlyRate) / (temp - 1));
+        
+        const totalPay = monthlyPay * months;
+        const totalInterest = totalPay - amount;
+
+        // 顯示結果
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('monthlyPay').innerText = '$ ' + monthlyPay.toLocaleString();
+        document.getElementById('totalInterest').innerText = '$ ' + totalInterest.toLocaleString();
+        document.getElementById('totalPay').innerText = '$ ' + totalPay.toLocaleString();
+    }
+</script>
+
+</body>
+</html>
