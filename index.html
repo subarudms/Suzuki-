@@ -3,132 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Suzuki 車貸試算</title>
-    <meta name="apple-mobile-web-app-title" content="車貸試算">
+    <title>Suzuki 專業貸款試算</title>
     <style>
-        :root {
-            --suzuki-red: #ED1C24;
-            --dark-grey: #333333;
-        }
-        body {
-            font-family: -apple-system, "Helvetica Neue", sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            padding: 15px;
-        }
-        .container {
-            width: 100%;
-            max-width: 450px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        .header {
-            background: var(--suzuki-red);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
+        :root { --suzuki-red: #ED1C24; }
+        body { font-family: -apple-system, sans-serif; background-color: #f4f4f4; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; background: white; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--suzuki-red); color: white; padding: 20px; text-align: center; font-size: 20px; font-weight: bold; }
         .content { padding: 20px; }
-        .input-group { margin-bottom: 20px; }
-        label {
-            display: block;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 18px;
-            box-sizing: border-box;
-            background: #fafafa;
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--suzuki-red);
-            background: white;
-        }
-        button {
-            width: 100%;
-            padding: 16px;
-            background: var(--suzuki-red);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            box-shadow: 0 4px 12px rgba(237, 28, 36, 0.3);
-        }
-        /* 增加點擊感的效果 */
-        button:active {
-            transform: scale(0.96);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            filter: brightness(0.9);
-        }
-        .result-card {
-            margin-top: 25px;
-            background: #fff5f5;
-            border: 1px solid #ffdede;
-            border-radius: 12px;
-            padding: 15px;
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed #eee;
-        }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 14px; color: #555; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fafafa; }
+        input:focus { outline: none; border-color: var(--suzuki-red); background: white; }
+        button { width: 100%; padding: 16px; background: var(--suzuki-red); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.1s; margin-top: 10px; }
+        button:active { transform: scale(0.97); opacity: 0.9; }
+        .result-card { margin-top: 20px; background: #fff5f5; border: 1px solid #ffdede; border-radius: 12px; padding: 15px; display: none; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .result-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; }
         .result-row:last-child { border-bottom: none; }
+        .label-text { color: #666; font-size: 15px; }
         .val { color: var(--suzuki-red); font-weight: bold; font-size: 18px; }
+        .highlight { background: #ffebeb; padding: 5px 10px; border-radius: 5px; margin-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">SUZUKI 車貸試算</div>
+    <div class="header">SUZUKI 貸款補貼息試算</div>
     <div class="content">
         <div class="input-group">
-            <label>貸款金額 (萬元)</label>
-            <input type="number" id="amt" pattern="\d*" placeholder="請輸入金額" value="60">
+            <label>申貸金額 (萬元)</label>
+            <input type="number" id="amt" value="60">
         </div>
         <div class="input-group">
-            <label>貸款利率 (%)</label>
-            <input type="number" id="rate" step="0.01" placeholder="例如 3.5" value="3.5">
+            <label>客戶(實質)利率 (%)</label>
+            <input type="number" id="rate" step="0.01" value="3.5">
         </div>
         <div class="input-group">
-            <label>貸款期數 (月)</label>
-            <input type="number" id="period" pattern="\d*" placeholder="例如 60" value="60">
+            <label>攤還期數 (月)</label>
+            <input type="number" id="period" value="60">
         </div>
-        <button onclick="doCalc()">立即計算</button>
+        
+        <button onclick="doCalc()">開始試算</button>
 
         <div id="res" class="result-card">
             <div class="result-row">
-                <span>每月應付本息</span>
+                <span class="label-text">每月應付金額</span>
                 <span class="val" id="m_pay">0</span>
             </div>
-            <div class="result-row" style="font-size: 14px; color: #888;">
-                <span>總利息支出</span>
-                <span id="t_int">0</span>
+            <div class="result-row highlight">
+                <span class="label-text">總補貼息 (折現)</span>
+                <span class="val" id="subsidy">0</span>
             </div>
-            <div class="result-row" style="font-size: 14px; color: #888;">
-                <span>還款總額</span>
-                <span id="t_pay">0</span>
+            <div class="result-row">
+                <span class="label-text">實撥金額</span>
+                <span class="val" id="actual_amt" style="color:#333;">0</span>
             </div>
+            <p style="font-size: 12px; color: #888; margin-top: 10px;">* 實撥金額 = 申貸金額 - 補貼息</p>
         </div>
     </div>
 </div>
@@ -136,20 +66,27 @@
 <script>
 function doCalc() {
     const PV = document.getElementById('amt').value * 10000;
-    const r = document.getElementById('rate').value / 100 / 12;
+    const annualRate = document.getElementById('rate').value / 100;
     const n = document.getElementById('period').value;
 
-    if (!PV || !r || !n) return alert("請輸入完整數值");
+    if (!PV || !annualRate || !n) return;
 
-    // 本息平均攤還公式
+    const r = annualRate / 12;
+    // 1. 每月月付額 (本息平均攤還)
     const monthly = Math.round(PV * (Math.pow(1 + r, n) * r) / (Math.pow(1 + r, n) - 1));
+    
+    // 2. 補貼息計算 (銀行通常採用的現值折抵法)
+    // 這裡我們計算總利息支出，即為補貼息金額
     const totalPay = monthly * n;
-    const totalInt = totalPay - PV;
+    const subsidy = totalPay - PV;
+    
+    // 3. 實撥金額
+    const actualAmt = PV - subsidy;
 
     document.getElementById('res').style.display = 'block';
     document.getElementById('m_pay').innerText = '$ ' + monthly.toLocaleString();
-    document.getElementById('t_int').innerText = '$ ' + totalInt.toLocaleString();
-    document.getElementById('t_pay').innerText = '$ ' + totalPay.toLocaleString();
+    document.getElementById('subsidy').innerText = '$ ' + subsidy.toLocaleString();
+    document.getElementById('actual_amt').innerText = '$ ' + actualAmt.toLocaleString();
 }
 </script>
 
