@@ -3,171 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Suzuki 專業貸款試算</title>
-    
+    <title>Suzuki 貸款試算</title>
     <link rel="apple-touch-icon" href="logo.png">
-    <link rel="shortcut icon" href="logo.png" type="image/x-icon">
-    <meta name="apple-mobile-web-app-title" content="Suzuki 試算">
-
     <style>
-        :root {
-            --suzuki-red: #ED1C24;
-            --main-bg: #222; /* 配合 Logo，把背景改成質感黑 */
-            --card-bg: #fff;
-        }
-        body {
-            font-family: -apple-system, sans-serif;
-            background-color: var(--main-bg);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            width: 100%;
-            max-width: 450px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(237, 28, 36, 0.2);
-            overflow: hidden;
-            border: 2px solid #e74c3c20;
-        }
-        .header {
-            background: white; /* 標頭改白色，突出 Logo */
-            color: #333;
-            padding: 25px 20px 15px;
-            text-align: center;
-        }
-        /* 復古 Logo 樣式 */
-        .header-logo {
-            width: 120px; /* 控制 Logo 大小 */
-            height: auto;
-            margin-bottom: 10px;
-        }
-        .header-title {
-            font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            color: var(--suzuki-red);
-        }
+        :root { --suzuki-red: #ED1C24; --bg: #222; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); overflow: hidden; }
+        .header { background: white; padding: 20px; text-align: center; border-bottom: 1px solid #eee; }
+        .header-logo { width: 100px; height: auto; margin-bottom: 5px; }
+        .header-title { font-size: 18px; font-weight: bold; color: var(--suzuki-red); }
         .content { padding: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 14px; color: #555; margin-bottom: 5px; font-weight: bold; }
-        input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 18px;
-            box-sizing: border-box;
-            background: #fafafa;
-        }
-        input:focus { outline: none; border-color: var(--suzuki-red); background: white; }
-        button {
-            width: 100%;
-            padding: 16px;
-            background: var(--suzuki-red);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.1s;
-            margin-top: 10px;
-            box-shadow: 0 4px 10px rgba(237, 28, 36, 0.3);
-        }
-        button:active { transform: scale(0.97); opacity: 0.9; }
-        .result-card {
-            margin-top: 20px;
-            background: #fff8f8;
-            border: 1px solid #ffdede;
-            border-radius: 12px;
-            padding: 15px;
-            display: none;
-            animation: fadeIn 0.3s;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
-        .result-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #eee; }
-        .result-row:last-child { border-bottom: none; }
-        .label-text { color: #666; font-size: 15px; }
-        .val { color: var(--suzuki-red); font-weight: bold; font-size: 22px; font-family: 'Helvetica Neue', sans-serif; }
-        .highlight { background: #ffebeb; padding: 12px; border-radius: 10px; margin-top: 10px; }
+        .input-row { display: flex; align-items: center; margin-bottom: 15px; }
+        .input-row label { width: 100px; font-size: 15px; color: var(--suzuki-red); font-weight: bold; }
+        .input-row input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; text-align: right; }
+        .input-row span { margin-left: 10px; width: 20px; color: #666; font-size: 15px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; border: none; transition: 0.1s; }
+        .btn-calc { background: var(--suzuki-red); color: white; }
+        .btn-clear { background: #eee; color: #666; }
+        .btn:active { transform: scale(0.95); }
+        .result-area { margin-top: 25px; border-top: 2px solid #f4f4f4; padding-top: 20px; display: none; }
+        .res-title { font-weight: bold; color: #2c3e50; margin-bottom: 15px; display: flex; align-items: center; }
+        .res-title::before { content: ""; display: inline-block; width: 4px; height: 18px; background: #27ae60; margin-right: 8px; }
+        .res-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 16px; }
+        .res-val { font-weight: bold; font-family: 'Verdana', sans-serif; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <img src="logo.png" alt="Suzuki Logo" class="header-logo">
-        <div class="header-title">貸款與補貼息試算</div>
+        <img src="logo.png" alt="Logo" class="header-logo">
+        <div class="header-title">車貸試算助手</div>
     </div>
     <div class="content">
-        <div class="input-group">
-            <label>申貸金額 (萬元)</label>
-            <input type="number" id="amt" pattern="\d*" value="60">
+        <div class="input-row">
+            <label>申貸金額</label>
+            <input type="number" id="amt" value="500000" onclick="this.select()">
+            <span>元</span>
         </div>
-        <div class="input-group">
-            <label>客戶(實質)利率 (%)</label>
-            <input type="number" id="rate" step="0.01" value="3.5">
+        <div class="input-row">
+            <label>客戶利率</label>
+            <input type="number" id="c_rate" step="0.01" value="0" onclick="this.select()">
+            <span>%</span>
         </div>
-        <div class="input-group">
-            <label>攤還期數 (月)</label>
-            <input type="number" id="period" pattern="\d*" value="60">
+        <div class="input-row">
+            <label>實質利率</label>
+            <input type="number" id="r_rate" step="0.01" value="2.5" onclick="this.select()">
+            <span>%</span>
+        </div>
+        <div class="input-row">
+            <label>攤還期數</label>
+            <input type="number" id="period" value="60" onclick="this.select()">
+            <span>期</span>
         </div>
         
-        <button onclick="doCalc()">立即計算</button>
+        <div class="btn-group">
+            <button class="btn btn-calc" onclick="doCalc()">試 算</button>
+            <button class="btn btn-clear" onclick="doClear()">清 除</button>
+        </div>
 
-        <div id="res" class="result-card">
-            <div class="result-row">
-                <span class="label-text">每月應付金額</span>
-                <span class="val" id="m_pay">$ 0</span>
+        <div id="res" class="result-area">
+            <div class="res-title">試算結果如下：</div>
+            <div class="res-row">
+                <span>月付金額</span>
+                <span class="res-val" id="m_pay">0</span>
             </div>
-            <div class="result-row highlight">
-                <span class="label-text" style="color:var(--suzuki-red);">總補貼息 (折現)</span>
-                <span class="val" id="subsidy">$ 0</span>
+            <div class="res-row">
+                <span>補貼息</span>
+                <span class="res-val" id="subsidy" style="color:var(--suzuki-red);">0</span>
             </div>
-            <div class="result-row">
-                <span class="label-text">實撥金額 (撥貸-利息)</span>
-                <span class="val" id="actual_amt" style="color:#333;">$ 0</span>
+            <div class="res-row">
+                <span>實撥金額</span>
+                <span class="res-val" id="actual_amt">0</span>
             </div>
-            <p style="font-size: 12px; color: #888; margin-top: 12px; text-align: center; line-height: 1.4;">
-                * 本試算採本息平均攤還法。<br>
-                * 實撥金額僅供業務參考扣貼息空間之用。
-            </p>
         </div>
     </div>
 </div>
 
 <script>
 function doCalc() {
-    const PV_input = document.getElementById('amt').value;
-    const rate_input = document.getElementById('rate').value;
-    const period_input = document.getElementById('period').value;
+    const PV = parseFloat(document.getElementById('amt').value) || 0;
+    const clientRate = parseFloat(document.getElementById('c_rate').value) / 100 / 12 || 0;
+    const realRate = parseFloat(document.getElementById('r_rate').value) / 100 / 12 || 0;
+    const n = parseInt(document.getElementById('period').value) || 0;
 
-    if (!PV_input || !rate_input || !period_input) return;
+    if (PV <= 0 || n <= 0) return;
 
-    const PV = PV_input * 10000;
-    const annualRate = rate_input / 100;
-    const n = period_input;
-    const r = annualRate / 12;
+    // 1. 計算月付額 (PMT)
+    let monthlyPay;
+    if (clientRate === 0) {
+        monthlyPay = Math.ceil(PV / n);
+    } else {
+        monthlyPay = Math.round(PV * (Math.pow(1 + clientRate, n) * clientRate) / (Math.pow(1 + clientRate, n) - 1));
+    }
 
-    // 1. 每月月付額 (本息平均攤還)
-    const monthly = Math.round(PV * (Math.pow(1 + r, n) * r) / (Math.pow(1 + r, n) - 1));
+    // 2. 計算補貼息 (基於實質利率折現)
+    let subsidy = 0;
+    let actualAmt = PV;
     
-    // 2. 補貼息計算 (銀行通常採用的現值折抵法)
-    const totalPay = monthly * n;
-    const subsidy = totalPay - PV;
-    
-    // 3. 實撥金額
-    const actualAmt = PV - subsidy;
+    if (realRate > 0) {
+        // 年金現值公式
+        const pvOfAnnuity = monthlyPay * ((1 - Math.pow(1 + realRate, -n)) / realRate);
+        subsidy = Math.round(PV - pvOfAnnuity);
+        actualAmt = Math.round(pvOfAnnuity);
+    }
 
     document.getElementById('res').style.display = 'block';
-    document.getElementById('m_pay').innerText = '$ ' + monthly.toLocaleString();
-    document.getElementById('subsidy').innerText = '$ ' + subsidy.toLocaleString();
-    document.getElementById('actual_amt').innerText = '$ ' + actualAmt.toLocaleString();
+    document.getElementById('m_pay').innerText = monthlyPay.toLocaleString();
+    document.getElementById('subsidy').innerText = subsidy.toLocaleString();
+    document.getElementById('actual_amt').innerText = actualAmt.toLocaleString();
+    
+    // 自動滾動到底部看結果
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function doClear() {
+    document.getElementById('res').style.display = 'none';
+    document.getElementById('amt').value = "";
+    document.getElementById('c_rate').value = "0";
+    document.getElementById('r_rate').value = "0";
+    document.getElementById('period').value = "";
 }
 </script>
 
