@@ -4,37 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Suzuki 貸款試算</title>
-    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png.png">
     <style>
         :root { --suzuki-red: #ED1C24; --bg: #222; }
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { width: 100%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); overflow: hidden; }
         .header { background: white; padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
-        /* 強制固定 Logo 大小，避免沒圖時框框太醜 */
-        .header-logo { width: 120px; height: auto; min-height: 50px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+        .header-logo { width: 120px; height: auto; display: block; margin: 0 auto 10px; }
         .header-title { font-size: 18px; font-weight: bold; color: var(--suzuki-red); }
         .content { padding: 20px; }
         .input-row { display: flex; align-items: center; margin-bottom: 15px; }
         .input-row label { width: 100px; font-size: 15px; color: var(--suzuki-red); font-weight: bold; }
-        .input-row input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; text-align: right; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        .input-row input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; text-align: right; }
         .input-row span { margin-left: 10px; width: 25px; color: #666; font-size: 14px; }
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn { flex: 1; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; transition: 0.1s; }
-        .btn-calc { background: var(--suzuki-red); color: white; box-shadow: 0 4px 10px rgba(237, 28, 36, 0.3); }
+        .btn-calc { background: var(--suzuki-red); color: white; }
         .btn-clear { background: #eee; color: #666; }
-        .btn:active { transform: scale(0.95); opacity: 0.9; }
+        .btn:active { transform: scale(0.95); }
         .result-area { margin-top: 25px; border-top: 2px solid #f9f9f9; padding-top: 20px; display: none; }
-        .res-title { font-weight: bold; color: #333; margin-bottom: 15px; font-size: 17px; }
-        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; font-size: 16px; }
-        .res-val { font-weight: bold; font-family: 'Arial', sans-serif; font-size: 20px; color: #333; }
-        .highlight-val { color: var(--suzuki-red); font-size: 24px; }
+        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; }
+        .res-val { font-weight: bold; font-size: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <img src="logo.png" alt="Suzuki Logo" class="header-logo" onerror="this.src='https://subarudms.github.io/logo.png'">
+        <img src="logo.png.png" alt="Suzuki Logo" class="header-logo">
         <div class="header-title">車貸補貼息試算助手</div>
     </div>
     <div class="content">
@@ -65,19 +62,9 @@
         </div>
 
         <div id="res" class="result-area">
-            <div class="res-title">📊 試算結果如下：</div>
-            <div class="res-row">
-                <span>月付金額</span>
-                <span class="res-val" id="m_pay">0</span>
-            </div>
-            <div class="res-row">
-                <span style="color:var(--suzuki-red); font-weight:bold;">補貼息</span>
-                <span class="res-val highlight-val" id="subsidy">0</span>
-            </div>
-            <div class="res-row">
-                <span>實撥金額</span>
-                <span class="res-val" id="actual_amt">0</span>
-            </div>
+            <div class="res-row"><span>月付金額</span><span class="res-val" id="m_pay">0</span></div>
+            <div class="res-row"><span style="color:var(--suzuki-red);">補貼息</span><span class="res-val" id="subsidy" style="color:var(--suzuki-red);">0</span></div>
+            <div class="res-row"><span>實撥金額</span><span class="res-val" id="actual_amt">0</span></div>
         </div>
     </div>
 </div>
@@ -88,33 +75,19 @@ function doCalc() {
     const clientRate = parseFloat(document.getElementById('c_rate').value) / 100 / 12 || 0;
     const realRate = parseFloat(document.getElementById('r_rate').value) / 100 / 12 || 0;
     const n = parseInt(document.getElementById('period').value) || 0;
-
     if (PV <= 0 || n <= 0) return;
-
-    let monthlyPay;
-    if (clientRate === 0) {
-        monthlyPay = Math.ceil(PV / n);
-    } else {
-        monthlyPay = Math.round(PV * (Math.pow(1 + clientRate, n) * clientRate) / (Math.pow(1 + clientRate, n) - 1));
-    }
-
-    let subsidy = 0;
-    let actualAmt = PV;
-    
+    let monthlyPay = (clientRate === 0) ? Math.ceil(PV / n) : Math.round(PV * (Math.pow(1 + clientRate, n) * clientRate) / (Math.pow(1 + clientRate, n) - 1));
+    let subsidy = 0, actualAmt = PV;
     if (realRate > 0) {
         const pvOfAnnuity = monthlyPay * ((1 - Math.pow(1 + realRate, -n)) / realRate);
         subsidy = Math.round(PV - pvOfAnnuity);
         actualAmt = Math.round(pvOfAnnuity);
     }
-
     document.getElementById('res').style.display = 'block';
     document.getElementById('m_pay').innerText = monthlyPay.toLocaleString();
     document.getElementById('subsidy').innerText = subsidy.toLocaleString();
     document.getElementById('actual_amt').innerText = actualAmt.toLocaleString();
-    
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
-
 function doClear() {
     document.getElementById('res').style.display = 'none';
     document.getElementById('amt').value = "";
