@@ -15,13 +15,13 @@
         .content { padding: 20px; }
         .input-row { display: flex; align-items: center; margin-bottom: 15px; }
         .input-row label { width: 90px; font-size: 15px; color: #444; font-weight: bold; }
-        .input-row input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; text-align: right; background: #fafafa; }
+        .input-row input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; text-align: right; background: #fafafa; -webkit-appearance: none; }
         .input-row span { margin-left: 10px; width: 25px; color: #888; font-size: 14px; }
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn { flex: 1; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; transition: transform 0.1s; }
         .btn-calc { background: var(--suzuki-red); color: white; }
         .btn-clear { background: #f0f0f0; color: #666; }
-        .btn:active { transform: scale(0.92); } /* 加強縮放回饋感 */
+        .btn:active { transform: scale(0.92); }
         .result-area { margin-top: 25px; border-top: 2px solid #f9f9f9; padding-top: 20px; display: none; }
         .res-title { font-weight: bold; color: #333; margin-bottom: 15px; font-size: 16px; border-left: 4px solid var(--suzuki-red); padding-left: 10px; }
         .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; }
@@ -39,22 +39,22 @@
     <div class="content">
         <div class="input-row">
             <label>申貸金額</label>
-            <input type="number" id="amt" value="500000" onclick="this.select()">
+            <input type="number" id="amt" placeholder="請輸入金額" onclick="this.select()">
             <span>元</span>
         </div>
         <div class="input-row">
             <label>客戶利率</label>
-            <input type="number" id="c_rate" step="0.01" value="0" onclick="this.select()">
+            <input type="number" id="c_rate" step="0.01" placeholder="0" onclick="this.select()">
             <span>%</span>
         </div>
         <div class="input-row">
             <label>實質利率</label>
-            <input type="number" id="r_rate" step="0.01" value="2.5" onclick="this.select()">
+            <input type="number" id="r_rate" step="0.01" placeholder="2.5" onclick="this.select()">
             <span>%</span>
         </div>
         <div class="input-row">
             <label>攤還期數</label>
-            <input type="number" id="period" value="60" onclick="this.select()">
+            <input type="number" id="period" placeholder="60" onclick="this.select()">
             <span>期</span>
         </div>
         
@@ -74,12 +74,16 @@
 
 <script>
 function doCalc() {
+    // 若沒輸入則預設為 0
     const PV = parseFloat(document.getElementById('amt').value) || 0;
     const clientRate = parseFloat(document.getElementById('c_rate').value) / 100 / 12 || 0;
     const realRate = parseFloat(document.getElementById('r_rate').value) / 100 / 12 || 0;
     const n = parseInt(document.getElementById('period').value) || 0;
 
-    if (PV <= 0 || n <= 0) return;
+    if (PV <= 0 || n <= 0) {
+        alert("請輸入貸款金額與期數");
+        return;
+    }
 
     let monthlyPay = (clientRate === 0) ? Math.ceil(PV / n) : Math.round(PV * (Math.pow(1 + clientRate, n) * clientRate) / (Math.pow(1 + clientRate, n) - 1));
     let subsidy = 0, actualAmt = PV;
@@ -96,20 +100,15 @@ function doCalc() {
     document.getElementById('actual_amt').innerText = '$ ' + actualAmt.toLocaleString();
 }
 
-// 改用最直接的物件數值清空法
 function doClear() {
-    // 清空輸入框
-    document.getElementById('amt').value = "500000";
-    document.getElementById('c_rate').value = "0";
-    document.getElementById('r_rate').value = "2.5";
-    document.getElementById('period').value = "60";
+    // 徹底清空所有欄位
+    document.getElementById('amt').value = "";
+    document.getElementById('c_rate').value = "";
+    document.getElementById('r_rate').value = "";
+    document.getElementById('period').value = "";
     
-    // 隱藏結果區
-    const resArea = document.getElementById('res');
-    resArea.style.display = 'none';
-    
-    // 視覺回饋：輕微捲動到最上方
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 隱藏試算結果
+    document.getElementById('res').style.display = 'none';
 }
 </script>
 
