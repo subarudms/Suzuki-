@@ -1,83 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Suzuki 車貸試算</title>
-    <link rel="apple-touch-icon" href="logo.jpeg">
-    <style>
-        :root { --suzuki-red: #ED1C24; --bg: #222; }
-        body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); overflow: hidden; }
-        .header { background: white; padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
-        .header-logo { width: 110px; height: auto; display: block; margin: 0 auto 10px; }
-        .header-title { font-size: 20px; font-weight: bold; color: var(--suzuki-red); letter-spacing: 2px; }
-        .content { padding: 20px; }
-        .input-row { display: flex; align-items: center; margin-bottom: 15px; }
-        .input-row label { width: 90px; font-size: 15px; color: #444; font-weight: bold; }
-        .input-row input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; text-align: right; background: #fafafa; -webkit-appearance: none; }
-        .input-row span { margin-left: 10px; width: 25px; color: #888; font-size: 14px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; transition: transform 0.1s; }
-        .btn-calc { background: var(--suzuki-red); color: white; }
-        .btn-clear { background: #f0f0f0; color: #666; }
-        .btn:active { transform: scale(0.92); }
-        .result-area { margin-top: 25px; border-top: 2px solid #f9f9f9; padding-top: 20px; display: none; }
-        .res-title { font-weight: bold; color: #333; margin-bottom: 15px; font-size: 16px; border-left: 4px solid var(--suzuki-red); padding-left: 10px; }
-        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; }
-        .res-val { font-weight: bold; font-family: 'Arial', sans-serif; font-size: 19px; color: #333; }
-        .highlight { color: var(--suzuki-red); font-size: 22px; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header">
-        <img src="logo.jpeg" alt="Suzuki Logo" class="header-logo" onerror="this.style.display='none'">
-        <div class="header-title">車 貸 試 算</div>
-    </div>
-    <div class="content">
-        <div class="input-row">
-            <label>申貸金額</label>
-            <input type="number" id="amt" placeholder="請輸入金額" onclick="this.select()">
-            <span>元</span>
-        </div>
-        <div class="input-row">
-            <label>客戶利率</label>
-            <input type="number" id="c_rate" step="0.01" placeholder="0" onclick="this.select()">
-            <span>%</span>
-        </div>
-        <div class="input-row">
-            <label>實質利率</label>
-            <input type="number" id="r_rate" step="0.01" placeholder="2.5" onclick="this.select()">
-            <span>%</span>
-        </div>
-        <div class="input-row">
-            <label>攤還期數</label>
-            <input type="number" id="period" placeholder="60" onclick="this.select()">
-            <span>期</span>
-        </div>
-        
-        <div class="btn-group">
-            <button type="button" class="btn btn-calc" onclick="doCalc()">開 始 試 算</button>
-            <button type="button" class="btn btn-clear" onclick="doClear()">清 除</button>
-        </div>
-
-        <div id="res" class="result-area">
-            <div class="res-title">試算結果如下：</div>
-            <div class="res-row"><span>每月付款金額</span><span class="res-val" id="m_pay">$ 0</span></div>
-            <div class="res-row"><span>補貼息總額</span><span class="res-val highlight" id="subsidy">$ 0</span></div>
-            <div class="res-row"><span>銀行實撥金額</span><span class="res-val" id="actual_amt">$ 0</span></div>
-        </div>
-    </div>
-</div>
-
-<script>
 function doCalc() {
-    // 若沒輸入則預設為 0
     const PV = parseFloat(document.getElementById('amt').value) || 0;
-    const clientRate = parseFloat(document.getElementById('c_rate').value) / 100 / 12 || 0;
-    const realRate = parseFloat(document.getElementById('r_rate').value) / 100 / 12 || 0;
+    const clientRateRaw = parseFloat(document.getElementById('c_rate').value) || 0;
+    const realRateRaw = parseFloat(document.getElementById('r_rate').value) || 0;
+    const clientRate = clientRateRaw / 100 / 12;
+    const realRate = realRateRaw / 100 / 12;
     const n = parseInt(document.getElementById('period').value) || 0;
 
     if (PV <= 0 || n <= 0) {
@@ -85,13 +11,23 @@ function doCalc() {
         return;
     }
 
+    // 1. 計算月付額
     let monthlyPay = (clientRate === 0) ? Math.ceil(PV / n) : Math.round(PV * (Math.pow(1 + clientRate, n) * clientRate) / (Math.pow(1 + clientRate, n) - 1));
-    let subsidy = 0, actualAmt = PV;
+
+    // 2. 計算現值與補貼息
+    let subsidy = 0;
+    let actualAmt = PV;
     
-    if (realRate > 0) {
+    // 關鍵修正：如果兩個利率相同，補貼息就是 0
+    if (clientRateRaw === realRateRaw) {
+        subsidy = 0;
+        actualAmt = PV;
+    } else if (realRate > 0) {
         const pvOfAnnuity = monthlyPay * ((1 - Math.pow(1 + realRate, -n)) / realRate);
         subsidy = Math.round(PV - pvOfAnnuity);
-        actualAmt = Math.round(pvOfAnnuity);
+        // 確保補貼息不為負數
+        if (subsidy < 0) subsidy = 0;
+        actualAmt = PV - subsidy;
     }
 
     document.getElementById('res').style.display = 'block';
@@ -99,18 +35,3 @@ function doCalc() {
     document.getElementById('subsidy').innerText = '$ ' + subsidy.toLocaleString();
     document.getElementById('actual_amt').innerText = '$ ' + actualAmt.toLocaleString();
 }
-
-function doClear() {
-    // 徹底清空所有欄位
-    document.getElementById('amt').value = "";
-    document.getElementById('c_rate').value = "";
-    document.getElementById('r_rate').value = "";
-    document.getElementById('period').value = "";
-    
-    // 隱藏試算結果
-    document.getElementById('res').style.display = 'none';
-}
-</script>
-
-</body>
-</html>
