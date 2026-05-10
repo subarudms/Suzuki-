@@ -27,6 +27,7 @@
         .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; }
         .res-val { font-weight: bold; font-family: 'Arial', sans-serif; font-size: 19px; color: #333; }
         .highlight { color: var(--suzuki-red); font-size: 22px; }
+        .interest-val { color: #2c3e50; } /* 利息顏色稍作區分 */
     </style>
 </head>
 <body>
@@ -66,6 +67,7 @@
         <div id="res" class="result-area">
             <div class="res-title">試算結果如下：</div>
             <div class="res-row"><span>每月付款金額</span><span class="res-val" id="m_pay">$ 0</span></div>
+            <div class="res-row"><span>繳息總額</span><span class="res-val interest-val" id="total_interest">$ 0</span></div>
             <div class="res-row"><span>補貼息總額</span><span class="res-val highlight" id="subsidy">$ 0</span></div>
             <div class="res-row"><span>銀行實撥金額</span><span class="res-val" id="actual_amt">$ 0</span></div>
         </div>
@@ -74,15 +76,10 @@
 
 <script>
 function doCalc() {
-    const amtVal = document.getElementById('amt').value;
-    const cRateVal = document.getElementById('c_rate').value;
-    const rRateVal = document.getElementById('r_rate').value;
-    const periodVal = document.getElementById('period').value;
-
-    const PV = parseFloat(amtVal) || 0;
-    const cRateRaw = parseFloat(cRateVal) || 0;
-    const rRateRaw = parseFloat(rRateVal) || 0;
-    const n = parseInt(periodVal) || 0;
+    const PV = parseFloat(document.getElementById('amt').value) || 0;
+    const cRateRaw = parseFloat(document.getElementById('c_rate').value) || 0;
+    const rRateRaw = parseFloat(document.getElementById('r_rate').value) || 0;
+    const n = parseInt(document.getElementById('period').value) || 0;
 
     if (PV <= 0 || n <= 0) {
         alert("請輸入貸款金額與期數");
@@ -100,7 +97,11 @@ function doCalc() {
         monthlyPay = Math.round(PV * (Math.pow(1 + clientMonthlyRate, n) * clientMonthlyRate) / (Math.pow(1 + clientMonthlyRate, n) - 1));
     }
 
-    // 2. 計算補貼息 (處理利率相同時的誤差)
+    // 2. 計算總繳利息 (客戶付給銀行的利息總和)
+    let totalInterest = (monthlyPay * n) - PV;
+    if (totalInterest < 0) totalInterest = 0;
+
+    // 3. 計算補貼息
     let subsidy = 0;
     let actualAmt = PV;
 
@@ -110,12 +111,13 @@ function doCalc() {
     } else if (realMonthlyRate > 0) {
         const pvOfAnnuity = monthlyPay * ((1 - Math.pow(1 + realMonthlyRate, -n)) / realMonthlyRate);
         subsidy = Math.round(PV - pvOfAnnuity);
-        if (subsidy < 0) subsidy = 0; // 防止小數點誤差導致負數
+        if (subsidy < 0) subsidy = 0;
         actualAmt = PV - subsidy;
     }
 
     document.getElementById('res').style.display = 'block';
     document.getElementById('m_pay').innerText = '$ ' + monthlyPay.toLocaleString();
+    document.getElementById('total_interest').innerText = '$ ' + totalInterest.toLocaleString();
     document.getElementById('subsidy').innerText = '$ ' + subsidy.toLocaleString();
     document.getElementById('actual_amt').innerText = '$ ' + actualAmt.toLocaleString();
 }
