@@ -10,16 +10,20 @@
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
         .container { width: 100%; max-width: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); overflow: hidden; }
         
+        /* 標頭：背景圖片 + 紅色疊加文字 */
         .header { 
             background-image: url('logo.jpeg');
             background-size: contain; background-repeat: no-repeat; background-position: center;
-            height: 100px; display: flex; justify-content: center; align-items: center; position: relative; background-color: white;
+            height: 100px; display: flex; justify-content: center; align-items: center; background-color: white;
+            position: relative;
         }
         .header-title-overlay { 
-            font-size: 24px; font-weight: 900; color: var(--suzuki-red); letter-spacing: 2px;
-            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff; margin-top: 10px;
+            font-size: 26px; font-weight: 900; color: var(--suzuki-red); letter-spacing: 2px;
+            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+            margin-top: 15px;
         }
 
+        /* 專案快速按鈕區 */
         .project-group { padding: 15px 15px 5px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background: #fdfdfd; }
         .btn-proj { 
             padding: 8px 4px; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; font-weight: bold;
@@ -37,7 +41,7 @@
         .input-row span { margin-left: 8px; width: 25px; color: #888; font-size: 13px; }
 
         .btn-main-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-main { flex: 1; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; border: none; transition: 0.1s; }
+        .btn-main { flex: 1; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; border: none; transition: 0.1s; cursor: pointer; }
         .btn-calc { background: var(--suzuki-red); color: white; }
         .btn-clear { background: #eee; color: #666; }
 
@@ -55,9 +59,9 @@
     </div>
 
     <div class="project-group">
-        <button class="btn-proj" onclick="setProj('JIMNY 48期', 2.5, 2.5, 48, 500000)">Jimny 48期</button>
-        <button class="btn-proj" onclick="setProj('JIMNY 24期', 2.5, 2.5, 24, 500000)">Jimny 24期</button>
-        <button class="btn-proj" onclick="setProj('JIMNY 36期', 2.5, 2.5, 36, 500000)">Jimny 36期</button>
+        <button class="btn-proj" onclick="setProj('JIMNY 48期', 2.5, 3.25, 48, 500000)">Jimny 48期</button>
+        <button class="btn-proj" onclick="setProj('JIMNY 24期', 2.5, 3.25, 24, 500000)">Jimny 24期</button>
+        <button class="btn-proj" onclick="setProj('JIMNY 36期', 2.5, 3.25, 36, 500000)">Jimny 36期</button>
         <button class="btn-proj" onclick="setProj('CARRY 24期零利率', 0, 3.281, 24, 300000)">Carry 24期</button>
         <button class="btn-proj" onclick="setProj('CARRY 48期發發發', 3.19, 3.19, 48, 400000)">Carry 48期</button>
     </div>
@@ -67,22 +71,22 @@
         
         <div class="input-row">
             <label>申貸金額</label>
-            <input type="number" id="amt" placeholder="請輸入金額">
+            <input type="number" id="amt" placeholder="請輸入金額" onclick="this.select()">
             <span>元</span>
         </div>
         <div class="input-row">
             <label>客戶利率</label>
-            <input type="number" id="c_rate" step="0.001">
+            <input type="number" id="c_rate" step="0.001" onclick="this.select()">
             <span>%</span>
         </div>
         <div class="input-row">
             <label>實質利率</label>
-            <input type="number" id="r_rate" step="0.001">
+            <input type="number" id="r_rate" step="0.001" onclick="this.select()">
             <span>%</span>
         </div>
         <div class="input-row">
             <label>攤還期數</label>
-            <input type="number" id="period">
+            <input type="number" id="period" onclick="this.select()">
             <span>期</span>
         </div>
         
@@ -110,9 +114,10 @@ function setProj(name, crate, rrate, period, amt) {
     
     const buttons = document.querySelectorAll('.btn-proj');
     buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
     
-    // 自動執行一次計算
     doCalc();
 }
 
@@ -122,35 +127,46 @@ function doCalc() {
     const rRateRaw = parseFloat(document.getElementById('r_rate').value) || 0;
     const n = parseInt(document.getElementById('period').value) || 0;
 
-    if (PV <= 0 || n <= 0) return;
+    if (PV <= 0 || n <= 0) {
+        alert("請輸入貸款金額與期數");
+        return;
+    }
 
     const clientMonthlyRate = cRateRaw / 100 / 12;
     const realMonthlyRate = rRateRaw / 100 / 12;
 
+    // 1. 計算月付額
     let monthlyPay;
     if (cRateRaw === 0) {
+        // 零利率情況，銀行通常採無條件進位到個位數
         monthlyPay = Math.ceil(PV / n);
     } else {
+        // 標準本息平均攤還
         monthlyPay = Math.round(PV * (Math.pow(1 + clientMonthlyRate, n) * clientMonthlyRate) / (Math.pow(1 + clientMonthlyRate, n) - 1));
     }
 
+    // 2. 計算繳息總額 (僅在利率 > 0 時顯示)
     let totalInterest = 0;
     if (cRateRaw > 0) {
         totalInterest = (monthlyPay * n) - PV;
         if (totalInterest < 0) totalInterest = 0;
     }
 
+    // 3. 補貼息計算 (精確現值折現法)
     let subsidy = 0;
-    let actualAmt = PV;
     if (cRateRaw === rRateRaw) {
         subsidy = 0;
-    } else if (realMonthlyRate > 0) {
-        const pvOfAnnuity = monthlyPay * ((1 - Math.pow(1 + realMonthlyRate, -n)) / realMonthlyRate);
-        subsidy = Math.round(PV - pvOfAnnuity);
-        if (subsidy < 0) subsidy = 0;
-        actualAmt = PV - subsidy;
+    } else {
+        // PV = PMT * [(1 - (1+r)^-n) / r]
+        const factor = (1 - Math.pow(1 + realMonthlyRate, -n)) / realMonthlyRate;
+        const presentValue = monthlyPay * factor;
+        subsidy = Math.round(PV - presentValue);
     }
 
+    if (subsidy < 0) subsidy = 0;
+    const actualAmt = PV - subsidy;
+
+    // 顯示結果
     document.getElementById('res').style.display = 'block';
     document.getElementById('m_pay').innerText = '$ ' + monthlyPay.toLocaleString();
     document.getElementById('total_interest').innerText = '$ ' + totalInterest.toLocaleString();
