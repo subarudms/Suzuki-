@@ -20,10 +20,9 @@
             text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff; margin-top: 10px;
         }
 
-        /* 專案按鈕區 */
         .project-group { padding: 15px 15px 5px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background: #fdfdfd; }
         .btn-proj { 
-            padding: 8px 4px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; font-weight: bold;
+            padding: 8px 4px; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; font-weight: bold;
             background: white; color: #555; cursor: pointer; transition: 0.2s;
         }
         .btn-proj:active { background: #eee; transform: scale(0.95); }
@@ -56,11 +55,11 @@
     </div>
 
     <div class="project-group">
-        <button class="btn-proj" onclick="setProj('JIMNY 48期', 2.5, 48)">Jimny 48期</button>
-        <button class="btn-proj" onclick="setProj('JIMNY 24期', 2.5, 24)">Jimny 24期</button>
-        <button class="btn-proj" onclick="setProj('JIMNY 36期', 2.5, 36)">Jimny 36期</button>
-        <button class="btn-proj" onclick="setProj('CARRY 24期零利率', 0, 24)">Carry 24期</button>
-        <button class="btn-proj" onclick="setProj('CARRY 48期發發發', 3.19, 48)">Carry 48期</button>
+        <button class="btn-proj" onclick="setProj('JIMNY 48期', 2.5, 2.5, 48, 500000)">Jimny 48期</button>
+        <button class="btn-proj" onclick="setProj('JIMNY 24期', 2.5, 2.5, 24, 500000)">Jimny 24期</button>
+        <button class="btn-proj" onclick="setProj('JIMNY 36期', 2.5, 2.5, 36, 500000)">Jimny 36期</button>
+        <button class="btn-proj" onclick="setProj('CARRY 24期零利率', 0, 3.281, 24, 300000)">Carry 24期</button>
+        <button class="btn-proj" onclick="setProj('CARRY 48期發發發', 3.19, 3.19, 48, 400000)">Carry 48期</button>
     </div>
 
     <div class="content">
@@ -68,22 +67,22 @@
         
         <div class="input-row">
             <label>申貸金額</label>
-            <input type="number" id="amt" placeholder="請輸入金額" value="500000">
+            <input type="number" id="amt" placeholder="請輸入金額">
             <span>元</span>
         </div>
         <div class="input-row">
             <label>客戶利率</label>
-            <input type="number" id="c_rate" step="0.01" value="2.5">
+            <input type="number" id="c_rate" step="0.001">
             <span>%</span>
         </div>
         <div class="input-row">
             <label>實質利率</label>
-            <input type="number" id="r_rate" step="0.01" value="3.75">
+            <input type="number" id="r_rate" step="0.001">
             <span>%</span>
         </div>
         <div class="input-row">
             <label>攤還期數</label>
-            <input type="number" id="period" value="48">
+            <input type="number" id="period">
             <span>期</span>
         </div>
         
@@ -102,23 +101,19 @@
 </div>
 
 <script>
-// 設定專案快速鍵
-function setProj(name, rate, period) {
+function setProj(name, crate, rrate, period, amt) {
     document.getElementById('projName').innerText = "當前專案：" + name;
-    document.getElementById('c_rate').value = rate;
+    document.getElementById('amt').value = amt;
+    document.getElementById('c_rate').value = crate;
+    document.getElementById('r_rate').value = rrate;
     document.getElementById('period').value = period;
     
-    // 如果是 Carry 24期零利率，通常實質利率會高一點，這裡預設 3.75，你可再微調
-    if (rate === 0) {
-        document.getElementById('r_rate').value = 3.75;
-    } else {
-        document.getElementById('r_rate').value = rate;
-    }
-    
-    // 高亮顯示按鍵
     const buttons = document.querySelectorAll('.btn-proj');
     buttons.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
+    
+    // 自動執行一次計算
+    doCalc();
 }
 
 function doCalc() {
@@ -127,7 +122,7 @@ function doCalc() {
     const rRateRaw = parseFloat(document.getElementById('r_rate').value) || 0;
     const n = parseInt(document.getElementById('period').value) || 0;
 
-    if (PV <= 0 || n <= 0) { alert("請輸入貸款金額與期數"); return; }
+    if (PV <= 0 || n <= 0) return;
 
     const clientMonthlyRate = cRateRaw / 100 / 12;
     const realMonthlyRate = rRateRaw / 100 / 12;
